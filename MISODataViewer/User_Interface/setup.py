@@ -1,27 +1,25 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QVBoxLayout, QGroupBox, QTabWidget
-
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QVBoxLayout, QGroupBox, QTabWidget, QComboBox
+from PyQt5.QtCore import Qt
+from MISODataViewer.Logic_Handler import Data_Communicator
 
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # used to communicate with API and bring data to GUI
+        self. data_comm = Data_Communicator.data_communicator()
+
         # title of window
         self.title = 'MISO Data Viewer'
 
         # left option column
-        self.left_groupbox = QGroupBox('Options')
+        self.left_groupbox = self.config_left_options_bar()
 
         # right data visualization & display
-        self.right_groupbox = QGroupBox('Data')
-        self.data_tabs_wdgt = QTabWidget()
-        self.tab_graph = QWidget()
-        self.tab_data = QWidget()
-        self.data_tabs_wdgt.addTab(self.tab_graph, 'Visual')
-        self.data_tabs_wdgt.addTab(self.tab_data, 'View Data')
-        self.right_groupbox.setLayout(self.data_tabs_wdgt)
+        self.right_groupbox = self.config_right_data_area()
 
         # layout
         self.horizontalGroupBox = QGroupBox('Viewer')
@@ -61,3 +59,33 @@ class App(QMainWindow):
         self.setCentralWidget(wid)
         wid.setLayout(self.window_layout)
         self.show()
+
+    def config_left_options_bar(self):
+        """returns a groupbox (a column) with various options"""
+        gb = QGroupBox('Options')
+        vb_layout = QVBoxLayout()
+        vb_layout.setAlignment(Qt.AlignTop)
+
+        # combo boxes
+        cb = QComboBox()
+        cb.addItem('Choose data set...')
+
+
+        vb_layout.addWidget(cb)
+        gb.setLayout(vb_layout)
+
+        return gb
+
+    def config_right_data_area(self):
+        """returns a groupbox with tabs"""
+        gb = QGroupBox('Data')
+        data_tabs_wdgt = QTabWidget()
+        tab_graph = QWidget()
+        tab_data = QWidget()
+        data_tabs_wdgt.addTab(tab_graph, 'Visual')
+        data_tabs_wdgt.addTab(tab_data, 'View Data')
+        data_vbox_layout = QVBoxLayout()
+        data_vbox_layout.addWidget(data_tabs_wdgt)
+        gb.setLayout(data_vbox_layout)
+
+        return gb
