@@ -10,7 +10,9 @@ class App(QMainWindow):
         super().__init__()
 
         # used to communicate with API and bring data to GUI
-        self. data_comm = Data_Communicator.data_communicator()
+        self.data_comm = Data_Communicator.DataCommunicator()
+        self.connection_status = ''
+        self.set_connection_status(self.data_comm.test_conn())
 
         # title of window
         self.title = 'MISO Data Viewer'
@@ -50,8 +52,9 @@ class App(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        """attaches every element at the top level, inserts variables, shows GUI"""
         self.setWindowTitle(self.title)
-        self.statusBar().showMessage('Ready')
+        self.statusBar().showMessage('UI Ready... Connection: ' + str(self.connection_status))
         self.setGeometry(self.left, self.top, self.width, self.height)
         # layout cannot be assigned to a QMainWindow, so assign to widget and set as central widget
         # https://stackoverflow.com/questions/37304684/qwidgetsetlayout-attempting-to-set-qlayout-on-mainwindow-which-already
@@ -69,7 +72,6 @@ class App(QMainWindow):
         # combo boxes
         cb = QComboBox()
         cb.addItem('Choose data set...')
-
 
         vb_layout.addWidget(cb)
         gb.setLayout(vb_layout)
@@ -89,3 +91,9 @@ class App(QMainWindow):
         gb.setLayout(data_vbox_layout)
 
         return gb
+
+    def set_connection_status(self, status):
+        if status:
+            self.connection_status = 'Success'
+        else:
+            self.connection_status = 'Failed'
