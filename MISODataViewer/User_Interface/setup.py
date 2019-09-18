@@ -2,17 +2,21 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QVBoxLayout, QGroupBox, QTabWidget, QComboBox
 from PyQt5.QtCore import Qt
-from MISODataViewer.Logic_Handler import Data_Communicator
+from MISODataViewer.Logic_Handler import Data_Communication
 
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # used to communicate with API and bring data to GUI
-        self.data_comm = Data_Communicator.DataCommunicator()
+        # Data/Logic Communication. Used to communicate with API/dB and bring data to GUI
+        self.data_comm = Data_Communication.DataCommunicator()
         self.connection_status = ''
         self.set_connection_status(self.data_comm.test_conn())
+        self.report_options = []
+
+        # current report info
+        self.selected_report = ''
 
         # title of window
         self.title = 'MISO Data Viewer'
@@ -72,6 +76,9 @@ class App(QMainWindow):
         # combo boxes
         cb = QComboBox()
         cb.addItem('Choose data set...')
+        reports_list = self.data_comm.get_avail_reports_names()
+        for report in reports_list:
+            cb.addItem(report)
 
         vb_layout.addWidget(cb)
         gb.setLayout(vb_layout)
@@ -96,4 +103,4 @@ class App(QMainWindow):
         if status:
             self.connection_status = 'Success'
         else:
-            self.connection_status = 'Failed'
+            self.connection_status = 'Fail'
