@@ -44,14 +44,51 @@ class DataCommunicator:
 
     def get_avail_reports_names(self):
         """Queries dB for names of reports, returns list of all reports"""
-        reports_list = []
+        # keep the id with the
+        # {report_id: report_name, ...}
+        reports_list = {}
 
+        # connect to db and grab report ids and names
         conn = sqlite3.connect(self.db)
         curs = conn.cursor()
-        curs.execute('SELECT name FROM Reports')
-        for report_name in curs.fetchall():
-            reports_list.append(report_name[0])
+        curs.execute('SELECT id, name FROM Reports')
 
+        # go through results to create dict
+        for result in curs.fetchall():
+            reports_list[result[0]] = (result[1])
+
+        # close db connection
         conn.close()
 
         return reports_list
+
+    def grab_report_data(self, report_id):
+        """based on the report requested, makes a call to the API
+            returns it in a dict
+        """
+        # connect to db, setup cursor
+        conn = sqlite3.connect(self.db)
+        curs = conn.cursor()
+
+        # prepare query
+        query = 'SELECT link FROM Reports WHERE id =' + report_id
+
+        # run query
+        curs.execute(query)
+
+        # grab result from query
+        url = curs.fetchone()[0]
+
+        # get request to API
+        r = requests.get(url)
+
+        # test for good status
+        if r.status_code == requests.codes.ok:
+            # grab result. Converts json to dictionary
+            res = r.json()
+
+            return res
+        else:
+            return None
+
+

@@ -3,6 +3,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QVBoxLayout, QGroupBox, QTabWidget, QComboBox
 from PyQt5.QtCore import Qt
 from MISODataViewer.Controller import Controller
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import matplotlib
 
 
 class App(QMainWindow):
@@ -74,23 +78,29 @@ class App(QMainWindow):
 
     def config_left_options_bar(self):
         """returns a groupbox (a column) with various options"""
+        # set up the layout
         gb = QGroupBox('Options')
         vb_layout = QVBoxLayout()
         vb_layout.setAlignment(Qt.AlignTop)
 
-        # combo boxes
+        # COMBO BOXES
+        # creates the report chooser combo box
         self.cb_report_chooser.addItem('Choose data set...')
-        reports_list = self.comm.get_avail_reports_names()
-        for report in reports_list:
-            self.cb_report_chooser.addItem(report)
+        reports_dict = self.comm.get_avail_reports_names()
+        for key, report in reports_dict.items():
+            self.cb_report_chooser.addItem(str(key) + '. ' + str(report))
 
+        # add elements to layout
         vb_layout.addWidget(self.cb_report_chooser)
         gb.setLayout(vb_layout)
 
+        # return grouped layout
         return gb
 
     def config_right_data_area(self):
-        """returns a groupbox with tabs"""
+        """returns a groupbox with tabs
+            PART OF REFACTOR
+        """
         gb = QGroupBox('Data')
         data_tabs_wdgt = QTabWidget()
         tab_graph = QWidget()
@@ -114,3 +124,20 @@ class App(QMainWindow):
             self.connection_status = 'Success'
         else:
             self.connection_status = 'Fail'
+
+
+class Data_Area():
+    """Not currently being used. need to refactor to make it more modular"""
+    def __init__(self, title):
+        self.area = QGroupBox(title)
+        self.config_component()
+
+    def config_component(self):
+        data_tabs_wdgt = QTabWidget()
+        tab_graph = QWidget()
+        tab_data = QWidget()
+        data_tabs_wdgt.addTab(tab_graph, 'Visual')
+        data_tabs_wdgt.addTab(tab_data, 'View Data')
+        data_vbox_layout = QVBoxLayout()
+        data_vbox_layout.addWidget(data_tabs_wdgt)
+        self.area.setLayout(data_vbox_layout)
