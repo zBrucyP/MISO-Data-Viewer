@@ -6,7 +6,7 @@ from datetime import timedelta
 
 class Controller:
     def __init__(self):
-        self.last_good_api_db_test = self.get_last_good_api_db_test()
+        self.last_good_api_db_test = None
         self.model = Data_Communication.DataCommunicator()
 
     def is_connection_good(self):
@@ -15,7 +15,7 @@ class Controller:
         """
         if self.last_good_api_db_test == None:
             if self.model.test_conn() == True:
-                self.set_last_good_api_db_test()
+                #self.set_last_good_api_db_test()
                 return True
             else:
                 return False
