@@ -12,6 +12,7 @@ class DataCommunicator:
     def __init__(self):
         self.db = 'energy_data.db'
 
+
     def test_conn(self):
         """Returns true if rows in the database are returned and conn is made to API, showing a good connection"""
         # flags for tests

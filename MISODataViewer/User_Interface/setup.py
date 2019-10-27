@@ -2,18 +2,18 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QVBoxLayout, QGroupBox, QTabWidget, QComboBox
 from PyQt5.QtCore import Qt
-from MISODataViewer.Logic_Handler import Data_Communication
+from MISODataViewer.Controller import Controller
 
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Data/Logic Communication. Used to communicate with API/dB and bring data to GUI
-        self.data_comm = Data_Communication.DataCommunicator()
+        # Controller to handle events, analyze data, handle requests.
+        # tests for connection to API and DB
+        self.comm = Controller.Controller()
         self.connection_status = ''
-        self.set_connection_status(self.data_comm.test_conn())
-        self.report_options = []
+        self.set_connection_status(self.comm.is_connection_good())
 
         # current report info
         self.selected_report = ''
@@ -21,7 +21,9 @@ class App(QMainWindow):
         # title of window
         self.title = 'MISO Data Viewer'
 
+        # data filters/choosers
         # left option column
+        self.cb_report_chooser = QComboBox()
         self.left_groupbox = self.config_left_options_bar()
 
         # right data visualization & display
@@ -52,6 +54,9 @@ class App(QMainWindow):
         self.width = 1200
         self.height = 800
 
+        # setup event handlers on controls
+        self.event_handler_setup()
+
         # call for the GUI to display with above specified values
         self.init_ui()
 
@@ -74,13 +79,12 @@ class App(QMainWindow):
         vb_layout.setAlignment(Qt.AlignTop)
 
         # combo boxes
-        cb = QComboBox()
-        cb.addItem('Choose data set...')
-        reports_list = self.data_comm.get_avail_reports_names()
+        self.cb_report_chooser.addItem('Choose data set...')
+        reports_list = self.comm.get_avail_reports_names()
         for report in reports_list:
-            cb.addItem(report)
+            self.cb_report_chooser.addItem(report)
 
-        vb_layout.addWidget(cb)
+        vb_layout.addWidget(self.cb_report_chooser)
         gb.setLayout(vb_layout)
 
         return gb
@@ -98,6 +102,12 @@ class App(QMainWindow):
         gb.setLayout(data_vbox_layout)
 
         return gb
+
+    def event_handler_setup(self):
+        self.cb_report_chooser.currentIndexChanged.connect(self.chosen_report_changed)
+
+    def chosen_report_changed(self):
+        print('testingggg')
 
     def set_connection_status(self, status):
         if status:
